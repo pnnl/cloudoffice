@@ -53,7 +53,7 @@
       },
       "image":{
          "type":"string",
-         "defaultValue":"OpenLogic:CentOS-HPC:7.4",
+         "defaultValue":"OpenLogic:CentOS:7.4",
          "allowedValues":[
             "OpenLogic:CentOS-HPC:7.1",
             "OpenLogic:CentOS-HPC:7.4",
@@ -66,7 +66,7 @@
       },
       "headNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_H8",
+         "defaultValue":"Standard_A2",
          "allowedValues":[
             "Standard_A2",
             "Standard_A4",

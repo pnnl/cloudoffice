@@ -2,6 +2,24 @@
    "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
    "contentVersion":"1.0.0.0",
    "parameters":{
+      "existingVirtualNetworkName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of the existing VNET"
+        }
+      },
+      "existingVirtualNetworkResourceGroup": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of the existing VNET resource group"
+        }
+      },
+      "subnetName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of the subnet in the virtual network you want to use"
+        }
+      },
       "scheduler":{
          "type":"string",
          "defaultValue":"Slurm",

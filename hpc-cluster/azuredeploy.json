@@ -307,7 +307,7 @@
       "clusterFilesystemStorageLocation":"[split(parameters('clusterFilesystem'), ':')[1]]",
       "VnetID": "[resourceId(parameters('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
       "SubnetRef": "[concat(variables('VnetID'),'/subnets/',parameters('subnetName'))]",
-      "templateBaseUrl":"https://raw.githubusercontent.com/Azure/azure-hpc/master/Templates/hpc-cluster/",
+      "templateBaseUrl":"https://raw.githubusercontent.com/pnnl/cloudoffice/master/hpc-cluster/",
       "installationCLI":"[concat('bash azuredeploy.sh ', variables('masterVMName'), ' ', variables('workerVMName'), ' ', parameters('workerNodeCount'), ' ', parameters('hpcUserName'), ' ', variables('templateBaseUrl'), ' ', variables('clusterFilesystem'), ' ', variables('clusterFilesystemStorageLocation'), ' ', variables('imageOffer'), ' ', parameters('scheduler'), ' ', parameters('installEasybuild'))]"
    },
    "resources":[
@@ -317,8 +317,8 @@
          "apiVersion":"[variables('computeApiVersion')]",
          "location":"[resourceGroup().location]",
          "properties":{
-            "platformFaultDomainCount":"2",
-            "platformUpdateDomainCount":"2",
+            "platformFaultDomainCount":"1",
+            "platformUpdateDomainCount":"1",
             "managed":"true"
          }
       },
@@ -364,7 +364,6 @@
          "location":"[resourceGroup().location]",
          "dependsOn":[
             "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-            "[variables(VnetID)]",
             "Microsoft.Network/networkSecurityGroups/nsg"
          ],
          "properties":{
@@ -548,7 +547,6 @@
          "name":"[concat(variables('nicName'), 'worker', copyindex())]",
          "location":"[resourceGroup().location]",
          "dependsOn":[
-            "[variables(VnetID)]"
          ],
          "copy":{
             "name":"foo",

@@ -297,16 +297,16 @@
          },
          "statics":{
             "workerRange":{
-               "base":"10.0.0.",
+               "base":"10.16.62.",
                "start":5
             },
-            "master":"10.0.0.254"
+            "master":"10.16.62.254"
          }
       },
       "clusterFilesystem":"[split(parameters('clusterFilesystem'), ':')[0]]",
       "clusterFilesystemStorageLocation":"[split(parameters('clusterFilesystem'), ':')[1]]",
-      "vnetID":"[resourceId('Microsoft.Network/virtualNetworks',variables('networkSettings').virtualNetworkName)]",
-      "subnetRef":"[concat(variables('vnetID'),'/subnets/',variables('networkSettings').subnet.dse.name)]",
+      "VnetID": "[resourceId(parameters('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
+      "SubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('SubnetName'))]",
       "templateBaseUrl":"https://raw.githubusercontent.com/Azure/azure-hpc/master/Templates/hpc-cluster/",
       "installationCLI":"[concat('bash azuredeploy.sh ', variables('masterVMName'), ' ', variables('workerVMName'), ' ', parameters('workerNodeCount'), ' ', parameters('hpcUserName'), ' ', variables('templateBaseUrl'), ' ', variables('clusterFilesystem'), ' ', variables('clusterFilesystemStorageLocation'), ' ', variables('imageOffer'), ' ', parameters('scheduler'), ' ', parameters('installEasybuild'))]"
    },
@@ -320,27 +320,6 @@
             "platformFaultDomainCount":"2",
             "platformUpdateDomainCount":"2",
             "managed":"true"
-         }
-      },
-      {
-         "apiVersion":"[variables('armApiVersion')]",
-         "type":"Microsoft.Network/virtualNetworks",
-         "name":"[variables('networkSettings').virtualNetworkName]",
-         "location":"[resourceGroup().location]",
-         "properties":{
-            "addressSpace":{
-               "addressPrefixes":[
-                  "[variables('networkSettings').addressPrefix]"
-               ]
-            },
-            "subnets":[
-               {
-                  "name":"[variables('networkSettings').subnet.dse.name]",
-                  "properties":{
-                     "addressPrefix":"[variables('networkSettings').subnet.dse.prefix]"
-                  }
-               }
-            ]
          }
       },
       {
@@ -385,7 +364,7 @@
          "location":"[resourceGroup().location]",
          "dependsOn":[
             "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-            "[concat('Microsoft.Network/virtualNetworks/', variables('networkSettings').virtualNetworkName)]",
+            "[variables(VnetID)]",
             "Microsoft.Network/networkSecurityGroups/nsg"
          ],
          "properties":{
@@ -569,7 +548,7 @@
          "name":"[concat(variables('nicName'), 'worker', copyindex())]",
          "location":"[resourceGroup().location]",
          "dependsOn":[
-            "[concat('Microsoft.Network/virtualNetworks/', variables('networkSettings').virtualNetworkName)]"
+            "[variables(VnetID)]"
          ],
          "copy":{
             "name":"foo",

@@ -66,7 +66,7 @@
       },
       "headNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_A2",
+         "defaultValue":"Standard_H8",
          "allowedValues":[
             "Standard_A2",
             "Standard_A4",
@@ -317,8 +317,8 @@
          "apiVersion":"[variables('computeApiVersion')]",
          "location":"[resourceGroup().location]",
          "properties":{
-            "platformFaultDomainCount":"1",
-            "platformUpdateDomainCount":"1",
+            "platformFaultDomainCount":"2",
+            "platformUpdateDomainCount":"2",
             "managed":"true"
          }
       },
@@ -344,7 +344,7 @@
                      "protocol":"*",
                      "sourcePortRange":"*",
                      "destinationPortRange":"22",
-                     "sourceAddressPrefix":"*",
+                     "sourceAddressPrefix":"130.20.0.0/16",
                      "destinationAddressPrefix":"*",
                      "access":"Allow",
                      "priority":100,

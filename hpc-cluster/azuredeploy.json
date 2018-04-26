@@ -282,8 +282,8 @@
       "armApiVersion":"2015-06-15",
       "computeApiVersion":"2016-04-30-preview",
       "avSetName":"avSet",
-      "masterDiskCount":4,
-      "workerDiskCount":4,
+      "masterDiskCount":0,
+      "workerDiskCount":0,
       "nicName":"nic",
       "networkSettings":{
          "virtualNetworkName":"virtualnetwork",
@@ -388,51 +388,13 @@
          }
       },
       {
-         "type":"Microsoft.Compute/disks",
-         "name":"[concat('masterdatadisk', copyindex())]",
-         "apiVersion":"[variables('computeApiVersion')]",
-         "location":"[resourceGroup().location]",
-         "copy":{
-            "name":"foo",
-            "count":"[variables('masterDiskCount')]"
-         },
-         "properties":{
-            "creationData":{
-               "createOption":"Empty"
-            },
-            "accountType":"[parameters('storageAccountType')]",
-            "diskSizeGB":"[parameters('dataDiskSize')]"
-         }
-      },
-      {
-         "type":"Microsoft.Compute/disks",
-         "name":"[concat('workerdatadisk', copyindex())]",
-         "apiVersion":"[variables('computeApiVersion')]",
-         "location":"[resourceGroup().location]",
-         "copy":{
-            "name":"foo",
-            "count":"[mul(parameters('workerNodeCount'), variables('workerDiskCount'))]"
-         },
-         "properties":{
-            "creationData":{
-               "createOption":"Empty"
-            },
-            "accountType":"[parameters('storageAccountType')]",
-            "diskSizeGB":"[parameters('dataDiskSize')]"
-         }
-      },
-      {
          "apiVersion":"[variables('computeApiVersion')]",
          "type":"Microsoft.Compute/virtualMachines",
          "name":"[variables('masterVMName')]",
          "location":"[resourceGroup().location]",
          "dependsOn":[
             "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
-            "[concat('Microsoft.Compute/availabilitySets/', variables('avSetName'))]",
-            "Microsoft.Compute/disks/masterdatadisk0",
-            "Microsoft.Compute/disks/masterdatadisk1",
-            "Microsoft.Compute/disks/masterdatadisk2",
-            "Microsoft.Compute/disks/masterdatadisk3"
+            "[concat('Microsoft.Compute/availabilitySets/', variables('avSetName'))]"
          ],
          "properties":{
             "availabilitySet":{
@@ -455,37 +417,7 @@
                },
                "osDisk":{
                   "createOption":"FromImage"
-               },
-               "dataDisks":[
-                  {
-                     "lun":1,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('masterdatadisk', 0))]"
-                     }
-                  },
-                  {
-                     "lun":2,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('masterdatadisk', 1))]"
-                     }
-                  },
-                  {
-                     "lun":3,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('masterdatadisk', 2))]"
-                     }
-                  },
-                  {
-                     "lun":4,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('masterdatadisk', 3))]"
-                     }
-                  }
-               ]
+               }
             },
             "networkProfile":{
                "networkInterfaces":[
@@ -574,11 +506,7 @@
          "location":"[resourceGroup().location]",
          "dependsOn":[
             "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), 'worker', copyindex())]",
-            "[concat('Microsoft.Compute/availabilitySets/', variables('avSetName'))]",
-            "[concat('Microsoft.Compute/disks/', 'workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 0))]",
-            "[concat('Microsoft.Compute/disks/', 'workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 1))]",
-            "[concat('Microsoft.Compute/disks/', 'workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 2))]",
-            "[concat('Microsoft.Compute/disks/', 'workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 3))]"
+            "[concat('Microsoft.Compute/availabilitySets/', variables('avSetName'))]"
          ],
          "copy":{
             "name":"foo",
@@ -607,34 +535,7 @@
                   "createOption":"FromImage"
                },
                "dataDisks":[
-                  {
-                     "lun":1,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 0)))]"
-                     }
-                  },
-                  {
-                     "lun":2,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 1)))]"
-                     }
-                  },
-                  {
-                     "lun":3,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 2)))]"
-                     }
-                  },
-                  {
-                     "lun":4,
-                     "createOption":"attach",
-                     "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat('workerdatadisk', add(mul(copyindex(), variables('workerDiskCount')), 3)))]"
-                     }
-                  }
+
                ]
             },
             "networkProfile":{

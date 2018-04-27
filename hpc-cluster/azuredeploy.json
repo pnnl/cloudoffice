@@ -61,7 +61,7 @@
             "OpenLogic:CentOS:7.4"
          ],
          "metadata":{
-            "description":"The OS image offer to use, eithe HPC with Intel MPI or the vanilla CentOS version."
+            "description":"The OS image offer to use, either HPC with Intel MPI or the vanilla CentOS version."
          }
       },
       "headNodeSize":{

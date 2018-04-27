@@ -127,7 +127,7 @@ w
 EOF
         createdPartitions="$createdPartitions /dev/${disk}1"
     done
-    
+
     sleep 30
 
     # Create RAID-0 volume
@@ -141,9 +141,9 @@ EOF
             mkfs -t $filesystem /dev/md10
             echo "/dev/md10 $mountPoint $filesystem defaults,nofail 0 2" >> /etc/fstab
         fi
-        
+
         sleep 15
-        
+
         mount /dev/md10
     fi
 }
@@ -201,18 +201,16 @@ install_munge()
 
     useradd -M -c "Munge service account" -g munge -s /usr/sbin/nologin munge
 
-    wget https://github.com/dun/munge/archive/munge-${MUNGE_VERSION}.tar.gz
+    wget https://github.com/pnnl/cloudoffice/blob/master/hpc-cluster/rpms/rpms.tar?raw=true -O rpms.tar
 
-    tar xvfz munge-$MUNGE_VERSION.tar.gz
-
-    cd munge-munge-$MUNGE_VERSION
+    tar xvf rpms.tar
 
     mkdir -m 700 /etc/munge
     mkdir -m 711 /var/lib/munge
     mkdir -m 700 /var/log/munge
     mkdir -m 755 /var/run/munge
 
-    ./configure -libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc --localstatedir=/var && make && make install
+    yum localinstall -y munge*.rpm
 
     chown -R munge:munge /etc/munge /var/lib/munge /var/log/munge /var/run/munge
 
@@ -272,27 +270,21 @@ install_slurm()
 
     chown -R slurm:slurm /var/spool/slurmd /var/run/slurmd /var/run/slurmctld /var/log/slurmd /var/log/slurmctld
 
-    wget https://github.com/SchedMD/slurm/archive/slurm-$SLURM_VERSION.tar.gz
 
-    tar xvfz slurm-$SLURM_VERSION.tar.gz
-
-    cd slurm-slurm-$SLURM_VERSION
-
-    ./configure -libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc/slurm && make -j 4 && make install
-
+    yum localinstall -y slurm*.rpm
     install_slurm_config
 
     if is_master; then
-        wget $TEMPLATE_BASE_URL/slurmctld.service
-        mv slurmctld.service /usr/lib/systemd/system
-        systemctl daemon-reload
+        #wget $TEMPLATE_BASE_URL/slurmctld.service
+        #mv slurmctld.service /usr/lib/systemd/system
+        #systemctl daemon-reload
         systemctl enable slurmctld
         systemctl start slurmctld
         systemctl status slurmctld
     else
-        wget $TEMPLATE_BASE_URL/slurmd.service
-        mv slurmd.service /usr/lib/systemd/system
-        systemctl daemon-reload
+        #wget $TEMPLATE_BASE_URL/slurmd.service
+        #mv slurmd.service /usr/lib/systemd/system
+        #systemctl daemon-reload
         systemctl enable slurmd
         systemctl start slurmd
         systemctl status slurmd

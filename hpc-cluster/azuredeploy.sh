@@ -225,9 +225,9 @@ install_munge()
     chown munge:munge /etc/munge/munge.key
     chmod 0400 /etc/munge/munge.key
 
-    /etc/init.d/munge start
+    systemctl start munge
 
-    cd ..
+    #cd ..
 }
 
 # Installs and configures slurm.conf on the node.
@@ -290,7 +290,7 @@ install_slurm()
         systemctl status slurmd
     fi
 
-    cd ..
+    #cd ..
 }
 
 # Downloads and installs PBS Pro OSS on the node.

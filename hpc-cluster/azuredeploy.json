@@ -124,7 +124,7 @@
       },
       "workerNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_H8",
+         "defaultValue":"Standard_H16r",
          "allowedValues":[
             "Standard_A2",
             "Standard_A3",
@@ -308,7 +308,8 @@
       "VnetID": "[resourceId(parameters('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
       "SubnetRef": "[concat(variables('VnetID'),'/subnets/',parameters('subnetName'))]",
       "templateBaseUrl":"https://raw.githubusercontent.com/pnnl/cloudoffice/master/hpc-cluster/",
-      "installationCLI":"[concat('bash azuredeploy.sh ', variables('masterVMName'), ' ', variables('workerVMName'), ' ', parameters('workerNodeCount'), ' ', parameters('hpcUserName'), ' ', variables('templateBaseUrl'), ' ', variables('clusterFilesystem'), ' ', variables('clusterFilesystemStorageLocation'), ' ', variables('imageOffer'), ' ', parameters('scheduler'), ' ', parameters('installEasybuild'))]"
+      "NumWorkerProcs":"16",
+      "installationCLI":"[concat('bash azuredeploy.sh ', variables('masterVMName'), ' ', variables('workerVMName'), ' ', parameters('workerNodeCount'), ' ', parameters('hpcUserName'), ' ', variables('templateBaseUrl'), ' ', variables('clusterFilesystem'), ' ', variables('clusterFilesystemStorageLocation'), ' ', variables('imageOffer'), ' ', parameters('scheduler'), ' ', parameters('installEasybuild'), ' ', variables(NumWorkerProcs))]"
    },
    "resources":[
       {

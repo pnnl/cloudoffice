@@ -11,7 +11,7 @@ fi
 echo "Script arguments: $@"
 
 if [ $# != 10 ]; then
-    echo "Usage: $0 <MasterHostname> <WorkerHostnamePrefix> <WorkerNodeCount> <HPCUserName> <TemplateBaseUrl> <ClusterFilesystem> <ClusterFilesystemStorage> <ImageOffer> <Scheduler> <InstallEasybuild>"
+    echo "Usage: $0 <MasterHostname> <WorkerHostnamePrefix> <WorkerNodeCount> <HPCUserName> <TemplateBaseUrl> <ClusterFilesystem> <ClusterFilesystemStorage> <ImageOffer> <Scheduler> <InstallEasybuild> <NumWorkerProcs>"
     exit 1
 fi
 
@@ -26,6 +26,7 @@ CFS_STORAGE_LOCATION="/data/beegfs/storage"
 IMAGE_OFFER="$8"
 SCHEDULER="$9"
 INSTALL_EASYBUILD="${10}"
+WORKER_NPROC="${11}"
 LAST_WORKER_INDEX=$(($WORKER_COUNT - 1))
 
 if [ "$CFS_STORAGE" == "Storage" ]; then
@@ -218,6 +219,7 @@ install_munge()
         dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
         mkdir -p $SLURM_CONF_DIR
         cp /etc/munge/munge.key $SLURM_CONF_DIR
+        chmod 0644 $SLURM_CONF_DIR/munge.key
     else
         cp $SLURM_CONF_DIR/munge.key /etc/munge/munge.key
     fi
@@ -225,6 +227,7 @@ install_munge()
     chown munge:munge /etc/munge/munge.key
     chmod 0400 /etc/munge/munge.key
 
+    systemctl enable munge.service
     systemctl start munge
 
     #cd ..
@@ -250,6 +253,7 @@ install_slurm_config()
         cat slurm.template.conf |
         sed 's/__MASTER__/'"$MASTER_HOSTNAME"'/g' |
                 sed 's/__WORKER_HOSTNAME_PREFIX__/'"$WORKER_HOSTNAME_PREFIX"'/g' |
+                sed 's/__WORKER_NPROC__/'"$WORKER_NPROC"'/g' |
                 sed 's/__LAST_WORKER_INDEX__/'"$LAST_WORKER_INDEX"'/g' > $SLURM_CONF_DIR/slurm.conf
     fi
 
@@ -285,7 +289,7 @@ install_slurm()
         #wget $TEMPLATE_BASE_URL/slurmd.service
         #mv slurmd.service /usr/lib/systemd/system
         #systemctl daemon-reload
-        systemctl enable slurmd
+        systemctl enable slurmd.service
         systemctl start slurmd
         systemctl status slurmd
     fi

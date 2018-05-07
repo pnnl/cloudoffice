@@ -309,7 +309,7 @@
       "SubnetRef": "[concat(variables('VnetID'),'/subnets/',parameters('subnetName'))]",
       "templateBaseUrl":"https://raw.githubusercontent.com/pnnl/cloudoffice/master/hpc-cluster/",
       "NumWorkerProcs":"16",
-      "installationCLI":"[concat('bash azuredeploy.sh ', variables('masterVMName'), ' ', variables('workerVMName'), ' ', parameters('workerNodeCount'), ' ', parameters('hpcUserName'), ' ', variables('templateBaseUrl'), ' ', variables('clusterFilesystem'), ' ', variables('clusterFilesystemStorageLocation'), ' ', variables('imageOffer'), ' ', parameters('scheduler'), ' ', parameters('installEasybuild'), ' ', variables(NumWorkerProcs))]"
+      "installationCLI":"[concat('bash azuredeploy.sh ', variables('masterVMName'), ' ', variables('workerVMName'), ' ', parameters('workerNodeCount'), ' ', parameters('hpcUserName'), ' ', variables('templateBaseUrl'), ' ', variables('clusterFilesystem'), ' ', variables('clusterFilesystemStorageLocation'), ' ', variables('imageOffer'), ' ', parameters('scheduler'), ' ', parameters('installEasybuild'), ' ', variables('NumWorkerProcs'))]"
    },
    "resources":[
       {

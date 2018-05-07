@@ -10,7 +10,7 @@ fi
 
 echo "Script arguments: $@"
 
-if [ $# != 10 ]; then
+if [ $# != 11 ]; then
     echo "Usage: $0 <MasterHostname> <WorkerHostnamePrefix> <WorkerNodeCount> <HPCUserName> <TemplateBaseUrl> <ClusterFilesystem> <ClusterFilesystemStorage> <ImageOffer> <Scheduler> <InstallEasybuild> <NumWorkerProcs>"
     exit 1
 fi

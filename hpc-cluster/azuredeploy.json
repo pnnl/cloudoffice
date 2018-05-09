@@ -4,18 +4,21 @@
    "parameters":{
       "existingVirtualNetworkName": {
         "type": "string",
+        "defaultValue":"hpctest_VNET",
         "metadata": {
           "description": "Name of the existing VNET"
         }
       },
       "existingVirtualNetworkResourceGroup": {
         "type": "string",
+        "defaultValue":"hpctest_Restricted",
         "metadata": {
           "description": "Name of the existing VNET resource group"
         }
       },
       "subnetName": {
         "type": "string",
+        "defaultValue":"default",
         "metadata": {
           "description": "Name of the subnet in the virtual network you want to use"
         }
@@ -53,7 +56,7 @@
       },
       "image":{
          "type":"string",
-         "defaultValue":"OpenLogic:CentOS:7.4",
+         "defaultValue":"OpenLogic:CentOS-HPC:7.4",
          "allowedValues":[
             "OpenLogic:CentOS-HPC:7.1",
             "OpenLogic:CentOS-HPC:7.4",
@@ -66,7 +69,7 @@
       },
       "headNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_H8",
+         "defaultValue":"Standard_H16r",
          "allowedValues":[
             "Standard_A2",
             "Standard_A4",
@@ -298,9 +301,9 @@
          "statics":{
             "workerRange":{
                "base":"10.16.62.",
-               "start":5
+               "start":20
             },
-            "master":"10.16.62.254"
+            "master":"10.16.62.251"
          }
       },
       "clusterFilesystem":"[split(parameters('clusterFilesystem'), ':')[0]]",
@@ -411,7 +414,7 @@
             },
             "storageProfile":{
                "imageReference":{
-                  "publisher":"[variables('imagePublisher')]",
+                 "publisher":"[variables('imagePublisher')]",
                   "offer":"[variables('imageOffer')]",
                   "sku":"[variables('imageSku')]",
                   "version":"latest"
@@ -527,7 +530,7 @@
             },
             "storageProfile":{
                "imageReference":{
-                  "publisher":"[variables('imagePublisher')]",
+                 "publisher":"[variables('imagePublisher')]",
                   "offer":"[variables('imageOffer')]",
                   "sku":"[variables('imageSku')]",
                   "version":"latest"

@@ -39,6 +39,7 @@ fi
 SHARE_NFS=/share/nfs
 SHARE_HOME=$SHARE_NFS/home
 SHARE_DATA=$SHARE_NFS/data
+SHARE_APPS=$SHARE_NFS/apps
 SHARE_CFS=/share/cfs
 BEEGFS_METADATA=/data/beegfs/meta
 
@@ -100,7 +101,17 @@ install_pkgs()
         yum -y install epel-release
         yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs \
             gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip kernel kernel-devel \
-            mpich-3.2 mpich-3.2-devel automake autoconf
+            mpich-3.2 mpich-3.2-devel automake autoconf msft-rdma-drivers
+
+        yum -y groupinstall "Infiniband Support"
+
+        sed -i 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
+
+        yum -y localinstall /opt/microsoft/rdma/rhel74/kmod-microsoft-hyper-v-rdma-4.2.3.1.144-20180209.x86_64.rpm \
+            /opt/microsoft/rdma/rhel74/microsoft-hyper-v-rdma-4.2.3.1.144-20180209.x86_64.rpm \
+            /opt/microsoft/rdma/rhel74/microsoft-hyper-v-rdma-debuginfo-4.2.3.1.144-20180209.x86_64.rpm
+
+
     fi
 }
 
@@ -285,6 +296,10 @@ install_slurm()
         systemctl enable slurmctld
         systemctl start slurmctld
         systemctl status slurmctld
+
+        mkdir -p $SHARE_APPS/intel
+        wget https://dtn2.pnl.gov/data/intel.tar
+        tar xf intel.tar -C $SHARE_APPS/intel
     else
         #wget $TEMPLATE_BASE_URL/slurmd.service
         #mv slurmd.service /usr/lib/systemd/system
@@ -292,8 +307,11 @@ install_slurm()
         systemctl enable slurmd.service
         systemctl start slurmd
         systemctl status slurmd
-    fi
 
+
+    fi
+    mkdir -p /share/apps/intel
+    ln -s $SHARE_APPS/intel/2018 /share/apps/intel
     #cd ..
 }
 

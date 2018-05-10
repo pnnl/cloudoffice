@@ -101,18 +101,12 @@ install_pkgs()
         yum -y install epel-release
         yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs \
             gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip kernel kernel-devel \
-            mpich-3.2 mpich-3.2-devel automake autoconf msft-rdma-drivers
-
-        yum -y groupinstall "Infiniband Support"
-
-        sed -i 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
-
-        yum -y localinstall /opt/microsoft/rdma/rhel74/kmod-microsoft-hyper-v-rdma-4.2.3.1.144-20180209.x86_64.rpm \
-            /opt/microsoft/rdma/rhel74/microsoft-hyper-v-rdma-4.2.3.1.144-20180209.x86_64.rpm \
-            /opt/microsoft/rdma/rhel74/microsoft-hyper-v-rdma-debuginfo-4.2.3.1.144-20180209.x86_64.rpm
+            mpich-3.2 mpich-3.2-devel automake autoconf
 
 
     fi
+
+
 }
 
 # Partitions all data disks attached to the VM and creates
@@ -300,6 +294,10 @@ install_slurm()
         mkdir -p $SHARE_APPS/intel
         wget https://dtn2.pnl.gov/data/intel.tar
         tar xf intel.tar -C $SHARE_APPS/intel
+
+        rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        sh -c 'echo -e "[azure-cli]\nname=Azure CLI\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
+        yum -y install azure-cli
     else
         #wget $TEMPLATE_BASE_URL/slurmd.service
         #mv slurmd.service /usr/lib/systemd/system

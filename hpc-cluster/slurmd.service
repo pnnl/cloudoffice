@@ -7,11 +7,15 @@ ConditionPathExists=/etc/slurm/slurm.conf
 
 [Service]
 Type=forking
-EnvironmentFile=-/etc/sysconfig/slurm
-ExecStart=/sbin/slurmd $SLURMD_OPTIONS
+EnvironmentFile=-/etc/sysconfig/slurmd
+ExecStart=/usr/sbin/slurmd $SLURMD_OPTIONS
 ExecReload=/bin/kill -HUP $MAINPID
 PIDFile=/var/run/slurmd.pid
 Restart=on-abort
+LimitNOFILE=51200
+LimitMEMLOCK=infinity
+LimitSTACK=infinity
+
 
 [Install]
 WantedBy=multi-user.target

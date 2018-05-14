@@ -15,5 +15,5 @@ az account set --subscription d9eabcc0-f041-4271-b900-25ec822ae637
 hosts=`scontrol show hostnames $1`
 for host in $hosts
 do
-  az vm stop --resource-group $resourceGroup --no-wait --name $host
+  az vm deallocate --resource-group $resourceGroup --no-wait --name $host
 done

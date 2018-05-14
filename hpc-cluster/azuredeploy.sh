@@ -10,8 +10,8 @@ fi
 
 echo "Script arguments: $@"
 
-if [ $# != 11 ]; then
-    echo "Usage: $0 <MasterHostname> <WorkerHostnamePrefix> <WorkerNodeCount> <HPCUserName> <TemplateBaseUrl> <ClusterFilesystem> <ClusterFilesystemStorage> <ImageOffer> <Scheduler> <InstallEasybuild> <NumWorkerProcs>"
+if [ $# != 12 ]; then
+    echo "Usage: $0 <MasterHostname> <WorkerHostnamePrefix> <WorkerNodeCount> <HPCUserName> <TemplateBaseUrl> <ClusterFilesystem> <ClusterFilesystemStorage> <ImageOffer> <Scheduler> <InstallEasybuild> <NumWorkerProcs> <MasterIP>"
     exit 1
 fi
 
@@ -27,6 +27,7 @@ IMAGE_OFFER="$8"
 SCHEDULER="$9"
 INSTALL_EASYBUILD="${10}"
 WORKER_NPROC="${11}"
+MASTER_IP="${12}"
 LAST_WORKER_INDEX=$(($WORKER_COUNT - 1))
 
 if [ "$CFS_STORAGE" == "Storage" ]; then
@@ -298,14 +299,30 @@ install_slurm()
         rpm --import https://packages.microsoft.com/keys/microsoft.asc
         sh -c 'echo -e "[azure-cli]\nname=Azure CLI\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
         yum -y install azure-cli
+
+        mkdir -p $SHARE_APPS/scripts/
+        #wget hpctest.pem
+        #mv hpctest.pem $SHARE_APPS/scripts/
+        chown slurm:slurm $SHARE_APPS/scripts/hpctest.pem
+        chmod 600 $SHARE_APPS/scripts/hpctest.pem
+        wget $TEMPLATE_BASE_URL/scripts/resume_HPC_node.sh
+        wget $TEMPLATE_BASE_URL/scripts/suspend_HPC_node.sh
+        mv resume_HPC_node.sh $SHARE_APPS/scripts/
+        mv suspend_HPC_node.sh $SHARE_APPS/scripts/
+        chown slurm:slurm $SHARE_APPS/scripts/resume_HPC_node.sh
+        chown slurm:slurm $SHARE_APPS/scripts/suspend_HPC_node.sh
+        chmod 755 $SHARE_APPS/scripts/resume_HPC_node.sh
+        chmod 755 $SHARE_APPS/scripts/suspend_HPC_node.sh
+
     else
-        #wget $TEMPLATE_BASE_URL/slurmd.service
-        #mv slurmd.service /usr/lib/systemd/system
-        #systemctl daemon-reload
+        wget $TEMPLATE_BASE_URL/slurmd.service
+        mv -f slurmd.service /usr/lib/systemd/system
+        systemctl daemon-reload
         systemctl enable slurmd.service
         systemctl start slurmd
         systemctl status slurmd
 
+        echo "$MASTER_IP master" >> /etc/hosts
 
     fi
     mkdir -p /share/apps/intel

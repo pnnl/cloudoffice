@@ -8,6 +8,7 @@ ConditionPathExists=/etc/slurm/slurm.conf
 [Service]
 Type=forking
 EnvironmentFile=-/etc/sysconfig/slurmd
+ExecStartPre=/bin/sleep 60
 ExecStart=/usr/sbin/slurmd $SLURMD_OPTIONS
 ExecReload=/bin/kill -HUP $MAINPID
 PIDFile=/var/run/slurmd.pid

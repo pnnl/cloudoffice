@@ -315,6 +315,7 @@ install_slurm()
         chmod 755 $SHARE_APPS/scripts/suspend_HPC_node.sh
 
     else
+      TEMPLATE_BASE_URL="https://raw.githubusercontent.com/pnnl/cloudoffice/master/hpc-cluster/"
         wget $TEMPLATE_BASE_URL/slurmd.service
         mv -f slurmd.service /usr/lib/systemd/system
         systemctl daemon-reload

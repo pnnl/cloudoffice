@@ -2,7 +2,7 @@
 
 Deploys a Slurm or PBS OSS cluster with a head node and one or more worker nodes.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-hpc%2Fmaster%2FTemplates%2Fhpc-cluster%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fpnnl%2Fcloudoffice%2Fmaster%2Fhpc-cluster%2Fazuredeploy.json" target="_blank">
    <img alt="Deploy to Azure" src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 

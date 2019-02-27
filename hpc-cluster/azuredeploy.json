@@ -4,14 +4,14 @@
    "parameters":{
       "existingVirtualNetworkName": {
         "type": "string",
-        "defaultValue":"hpctest_VNET",
+        "defaultValue":"rchpc-commercial-westus_VNET",
         "metadata": {
           "description": "Name of the existing VNET"
         }
       },
       "existingVirtualNetworkResourceGroup": {
         "type": "string",
-        "defaultValue":"hpctest_Restricted",
+        "defaultValue":"rchpc-commercial_Restricted",
         "metadata": {
           "description": "Name of the existing VNET resource group"
         }
@@ -129,6 +129,8 @@
          "type":"string",
          "defaultValue":"Standard_H16r",
          "allowedValues":[
+            "Standard_HC44rs",
+            "Standard_HB60rs",
             "Standard_A2",
             "Standard_A3",
             "Standard_A4",
@@ -300,10 +302,10 @@
          },
          "statics":{
             "workerRange":{
-               "base":"10.16.62.",
+               "base":"10.16.45.",
                "start":5
             },
-            "master":"10.16.62.254"
+            "master":"10.16.45.254"
          }
       },
       "clusterFilesystem":"[split(parameters('clusterFilesystem'), ':')[0]]",

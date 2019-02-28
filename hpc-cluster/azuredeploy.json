@@ -56,9 +56,9 @@
       },
       "image":{
          "type":"string",
-         "defaultValue":"OpenLogic:CentOS-HPC:7.4",
+         "defaultValue":"OpenLogic:CentOS-HPC:7.6",
          "allowedValues":[
-            "OpenLogic:CentOS-HPC:7.1",
+            "OpenLogic:CentOS-HPC:7.6",
             "OpenLogic:CentOS-HPC:7.4",
             "OpenLogic:CentOS:7.1",
             "OpenLogic:CentOS:7.4"

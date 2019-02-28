@@ -99,11 +99,133 @@ install_pkgs()
         sed -i.bak -e '28d' /etc/yum.conf
         sed -i '28iexclude=kernel*' /etc/yum.conf
     else
-        yum -y install epel-release
-        yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs \
-            gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip kernel kernel-devel \
-            mpich-3.2 mpich-3.2-devel automake autoconf
+        # yum -y install epel-release
+        # yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs \
+        #     gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip kernel kernel-devel \
+        #     mpich-3.2 mpich-3.2-devel automake autoconf
+        # Install pre-reqs and development tools
+        yum groupinstall -y "Development Tools"
+        yum install -y numactl numactl-devel libxml2-devel byacc environment-modules
+        yum install -y python-devel python-setuptools
+        yum install -y gtk2 atk cairo tcl tk
+        yum install -y gcc-gfortran gcc-c++
+        KERNEL=$(uname -r)
+        yum install -y kernel-devel-${KERNEL}
+        yum install -y m4 libgcc.i686 glibc-devel.i686
 
+        # Install Mellanox OFED
+        mkdir -p /tmp/mlnxofed
+        cd /tmp/mlnxofed
+        wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-4.5-1.0.1.0/MLNX_OFED_LINUX-4.5-1.0.1.0-rhel7.6-x86_64.tgz
+        tar zxvf MLNX_OFED_LINUX-4.5-1.0.1.0-rhel7.6-x86_64.tgz
+
+        KERNEL=$(uname -r)
+        ./MLNX_OFED_LINUX-4.5-1.0.1.0-rhel7.6-x86_64/mlnxofedinstall --kernel-sources /usr/src/kernels/$KERNEL --add-kernel-support --skip-repo
+
+        sed -i 's/LOAD_EIPOIB=no/LOAD_EIPOIB=yes/g' /etc/infiniband/openib.conf
+        /etc/init.d/openibd restart
+        cd && rm -rf /tmp/mlnxofed
+
+        # Install WALinuxAgent
+        mkdir -p /tmp/wala
+        cd /tmp/wala
+        wget https://github.com/Azure/WALinuxAgent/archive/v2.2.36.tar.gz
+        tar -xvf v2.2.36.tar.gz
+        cd WALinuxAgent-2.2.36
+        python setup.py install --register-service --force
+        sed -i -e 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
+        sed -i -e 's/AutoUpdate.Enabled=y/# AutoUpdate.Enabled=y/g' /etc/waagent.conf
+        systemctl restart waagent
+        cd && rm -rf /tmp/wala
+
+        # Install gcc 8.2
+        mkdir -p /tmp/setup-gcc
+        cd /tmp/setup-gcc
+
+        wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2
+        tar -xvf gmp-6.1.0.tar.bz2
+        cd ./gmp-6.1.0
+        ./configure && make -j 40 &&  make install
+        cd ..
+
+        wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-3.1.4.tar.bz2
+        tar -xvf mpfr-3.1.4.tar.bz2
+        cd mpfr-3.1.4
+        ./configure && make -j 40 &&  make install
+        cd ..
+
+        wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-1.0.3.tar.gz
+        tar -xvf mpc-1.0.3.tar.gz
+        cd mpc-1.0.3
+        ./configure && make -j 40 &&  make install
+        cd ..
+
+        # install gcc 8.2
+        wget https://ftp.gnu.org/gnu/gcc/gcc-8.2.0/gcc-8.2.0.tar.gz
+        tar -xvf gcc-8.2.0.tar.gz
+        cd gcc-8.2.0
+        ./configure --disable-multilib && make -j 40 && make install
+
+        cd && rm -rf /tmp/setup-gcc
+
+        cp ./modulefiles/gcc-8.2.0 /usr/share/Modules/modulefiles/
+        source ~/.bashrc
+        module load gcc-8.2.0
+
+        INSTALL_PREFIX=/opt
+
+        mkdir -p /tmp/mpi
+        cd /tmp/mpi
+
+        # MVAPICH2 2.3
+        wget http://mvapich.cse.ohio-state.edu/download/mvapich/mv2/mvapich2-2.3.tar.gz
+        tar -xvf mvapich2-2.3.tar.gz
+        cd mvapich2-2.3
+        ./configure --prefix=${INSTALL_PREFIX}/mvapich2-2.3 --enable-g=none --enable-fast=yes && make -j 40 && make install
+        cd ..
+
+        # UCX 1.5.0 RC1
+        wget https://github.com/openucx/ucx/releases/download/v1.5.0-rc1/ucx-1.5.0.tar.gz
+        tar -xvf ucx-1.5.0.tar.gz
+        cd ucx-1.5.0
+        ./contrib/configure-release --prefix=${INSTALL_PREFIX}/ucx-1.5.0 && make -j 40 && make install
+        cd ..
+
+        # HPC-X v2.3.0
+        cd ${INSTALL_PREFIX}
+        wget http://www.mellanox.com/downloads/hpc/hpc-x/v2.3/hpcx-v2.3.0-gcc-MLNX_OFED_LINUX-4.5-1.0.1.0-redhat7.6-x86_64.tbz
+        tar -xvf hpcx-v2.3.0-gcc-MLNX_OFED_LINUX-4.5-1.0.1.0-redhat7.6-x86_64.tbz
+        HPCX_PATH=${INSTALL_PREFIX}/hpcx-v2.3.0-gcc-MLNX_OFED_LINUX-4.5-1.0.1.0-redhat7.6-x86_64
+        HCOLL_PATH=${HPCX_PATH}/hcoll
+        rm -rf hpcx-v2.3.0-gcc-MLNX_OFED_LINUX-4.5-1.0.1.0-redhat7.6-x86_64.tbz
+        cd /tmp/mpi
+
+        # OpenMPI 4.0.0
+        wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.0.tar.gz
+        tar -xvf openmpi-4.0.0.tar.gz
+        cd openmpi-4.0.0
+        ./configure --prefix=${INSTALL_PREFIX}/openmpi-4.0.0 --with-ucx=${INSTALL_PREFIX}/ucx-1.5.0 --enable-mpirun-prefix-by-default && make -j 40 && make install
+        cd ..
+
+        # MPICH 3.3
+        wget http://www.mpich.org/static/downloads/3.3/mpich-3.3.tar.gz
+        tar -xvf mpich-3.3.tar.gz
+        cd mpich-3.3
+        ./configure --prefix=${INSTALL_PREFIX}/mpich-3.3 --with-ucx=${INSTALL_PREFIX}/ucx-1.5.0 --with-hcoll=${HCOLL_PATH} --enable-g=none --enable-fast=yes --with-device=ch4:ucx   && make -j 8 && make install
+        cd ..
+
+        # Intel MPI 2019 (update 2)
+        wget http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/15040/l_mpi_2019.2.187.tgz
+        wget https://raw.githubusercontent.com/jithinjosepkl/azhpc-images/master/config/IntelMPI-v2019.x-silent.cfg
+        tar -xvf l_mpi_2019.2.187.tgz
+        cd l_mpi_2019.2.187
+        ./install.sh --silent /tmp/mpi/IntelMPI-v2019.x-silent.cfg
+        cd ..
+
+        cd && rm -rf /tmp/mpi
+
+        mkdir -p /usr/share/Modules/modulefiles/mpi/
+        cp ./modulefiles/mpi/* /usr/share/Modules/modulefiles/mpi/
 
     fi
 
@@ -476,6 +598,18 @@ setup_env()
         echo "export I_MPI_FABRICS=shm:dapl" >> /etc/profile.d/mpi.sh
         echo "export I_MPI_DAPL_PROVIDER=ofa-v2-ib0" >> /etc/profile.d/mpi.sh
         echo "export I_MPI_DYNAMIC_CONNECTION=0" >> /etc/profile.d/mpi.sh
+    else
+        yum install -y nfs-utils
+        sed -i 's/GSS_USE_PROXY="yes"/GSS_USE_PROXY="no"/g' /etc/sysconfig/nfs
+
+        # Enable reclaim mode
+        cp /etc/sysctl.conf /tmp/sysctl.conf
+        echo "vm.zone_reclaim_mode = 1" >> /tmp/sysctl.conf
+        cp /tmp/sysctl.conf /etc/sysctl.conf
+        sysctl -p
+
+        # disable firewall
+        systemctl stop firewalld
     fi
 }
 

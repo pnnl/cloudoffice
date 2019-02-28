@@ -69,8 +69,9 @@
       },
       "headNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_H16r",
+         "defaultValue":"Standard_HC44rs",
          "allowedValues":[
+            "Standard_HC44rs",
             "Standard_A2",
             "Standard_A4",
             "Standard_A7",
@@ -127,7 +128,7 @@
       },
       "workerNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_H16r",
+         "defaultValue":"Standard_HC44rs",
          "allowedValues":[
             "Standard_HC44rs",
             "Standard_HB60rs",

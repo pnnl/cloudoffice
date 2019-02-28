@@ -4,14 +4,14 @@
    "parameters":{
       "existingVirtualNetworkName": {
         "type": "string",
-        "defaultValue":"rchpc-commercial-westus_VNET",
+        "defaultValue":"rchpc-commerical_westus2",
         "metadata": {
           "description": "Name of the existing VNET"
         }
       },
       "existingVirtualNetworkResourceGroup": {
         "type": "string",
-        "defaultValue":"rchpc-commercial_Restricted",
+        "defaultValue":"rchpc-commerical_westus2",
         "metadata": {
           "description": "Name of the existing VNET resource group"
         }

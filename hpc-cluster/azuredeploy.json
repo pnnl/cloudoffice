@@ -302,10 +302,10 @@
          },
          "statics":{
             "workerRange":{
-               "base":"10.16.45.",
+               "base":"10.16.52.",
                "start":5
             },
-            "master":"10.16.45.254"
+            "master":"10.16.52.254"
          }
       },
       "clusterFilesystem":"[split(parameters('clusterFilesystem'), ':')[0]]",

@@ -126,17 +126,17 @@ install_pkgs()
         /etc/init.d/openibd restart
         cd && rm -rf /tmp/mlnxofed
 
-        # Install WALinuxAgent
-        mkdir -p /tmp/wala
-        cd /tmp/wala
-        wget https://github.com/Azure/WALinuxAgent/archive/v2.2.36.tar.gz
-        tar -xvf v2.2.36.tar.gz
-        cd WALinuxAgent-2.2.36
-        python setup.py install --register-service --force
+        # # Install WALinuxAgent
+        # mkdir -p /tmp/wala
+        # cd /tmp/wala
+        # wget https://github.com/Azure/WALinuxAgent/archive/v2.2.36.tar.gz
+        # tar -xvf v2.2.36.tar.gz
+        # cd WALinuxAgent-2.2.36
+        # python setup.py install --register-service --force
         sed -i -e 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
         sed -i -e 's/AutoUpdate.Enabled=y/# AutoUpdate.Enabled=y/g' /etc/waagent.conf
-        systemctl restart waagent
-        cd && rm -rf /tmp/wala
+        # systemctl restart waagent
+        # cd && rm -rf /tmp/wala
 
         # Install gcc 8.2
         mkdir -p /tmp/setup-gcc

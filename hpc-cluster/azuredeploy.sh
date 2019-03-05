@@ -103,6 +103,8 @@ install_pkgs()
         # yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs \
         #     gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip kernel kernel-devel \
         #     mpich-3.2 mpich-3.2-devel automake autoconf
+        # Install nfs
+        yum -y install nfs-utils rpcbind
         # Install pre-reqs and development tools
         yum groupinstall -y "Development Tools"
         yum install -y numactl numactl-devel libxml2-devel byacc environment-modules
@@ -290,6 +292,7 @@ setup_shares()
     mkdir -p $SHARE_CFS
 
     if is_master; then
+        yum install -y nfs-server
         if [ "$CFS" == "BeeGFS" ]; then
             mkdir -p $BEEGFS_METADATA
             setup_data_disks $BEEGFS_METADATA "ext4"

@@ -76,8 +76,10 @@
       },
       "workerNodeSize":{
          "type":"string",
-         "defaultValue":"Standard_H16r",
+         "defaultValue":"Standard_HC44rs",
          "allowedValues":[
+            "Standard_HC44rs",
+            "Standard_HB60rs",
             "Standard_A2",
             "Standard_A3",
             "Standard_A4",
@@ -167,7 +169,7 @@
       },
       "dataDiskSize":{
          "type":"int",
-         "defaultValue":32,
+         "defaultValue":64,
          "allowedValues":[
             32,
             64,
@@ -243,10 +245,10 @@
          },
          "statics":{
             "workerRange":{
-               "base":"10.16.62.",
+               "base":"10.16.52.",
                "start":5
             },
-            "master":"10.16.62.254"
+            "master":"10.16.52.254"
          }
       },
       "clusterFilesystem":"[split(parameters('clusterFilesystem'), ':')[0]]",

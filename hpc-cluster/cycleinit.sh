@@ -18,6 +18,7 @@ install_pkgs()
   KERNEL=$(uname -r)
   yum install -y kernel-devel-${KERNEL}
   yum install -y m4 libgcc.i686 glibc-devel.i686
+  yum install -y infiniband-diags
 
   # Install Mellanox OFED
   mkdir -p $TMP_DIR/mlnxofed
@@ -42,4 +43,32 @@ install_pkgs()
   sed -i -e 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
   sed -i -e 's/AutoUpdate.Enabled=y/# AutoUpdate.Enabled=y/g' /etc/waagent.conf
 }
+
+# Sets all common environment variables and system parameters.
+#
+setup_env()
+{
+
+  # disable selinux
+  sed -i 's/enforcing/disabled/g' /etc/selinux/config
+  setenforce permissive
+  # Set unlimited mem lock
+  echo "$HPC_USER hard memlock unlimited" >> /etc/security/limits.conf
+  echo "$HPC_USER soft memlock unlimited" >> /etc/security/limits.conf
+
+
+  yum install -y nfs-utils
+  sed -i 's/GSS_USE_PROXY="yes"/GSS_USE_PROXY="no"/g' /etc/sysconfig/nfs
+
+  # Enable reclaim mode
+  cp /etc/sysctl.conf /tmp/sysctl.conf
+  echo "vm.zone_reclaim_mode = 1" >> /tmp/sysctl.conf
+  cp /tmp/sysctl.conf /etc/sysctl.conf
+  sysctl -p
+
+  # disable firewall
+  systemctl stop firewalld
+}
+
 install_pkgs
+setup_env

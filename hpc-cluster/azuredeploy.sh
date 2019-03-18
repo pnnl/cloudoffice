@@ -29,6 +29,7 @@ INSTALL_EASYBUILD="${10}"
 WORKER_NPROC="${11}"
 MASTER_IP="${12}"
 LAST_WORKER_INDEX=$(($WORKER_COUNT - 1))
+TMP_DIR="/mnt/resource"
 
 if [ "$CFS_STORAGE" == "Storage" ]; then
     CFS_STORAGE_LOCATION="/data/beegfs/storage"
@@ -116,8 +117,8 @@ install_pkgs()
         yum install -y m4 libgcc.i686 glibc-devel.i686
 
         # Install Mellanox OFED
-        mkdir -p /tmp/mlnxofed
-        cd /tmp/mlnxofed
+        mkdir -p $TMP_DIR/mlnxofed
+        cd $TMP_DIR/mlnxofed
         wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-4.5-1.0.1.0/MLNX_OFED_LINUX-4.5-1.0.1.0-rhel7.6-x86_64.tgz
         tar zxvf MLNX_OFED_LINUX-4.5-1.0.1.0-rhel7.6-x86_64.tgz
 
@@ -126,11 +127,11 @@ install_pkgs()
 
         sed -i 's/LOAD_EIPOIB=no/LOAD_EIPOIB=yes/g' /etc/infiniband/openib.conf
         /etc/init.d/openibd restart
-        cd && rm -rf /tmp/mlnxofed
+        cd && rm -rf $TMP_DIR/mlnxofed
 
         # # Install WALinuxAgent
-        # mkdir -p /tmp/wala
-        # cd /tmp/wala
+        # mkdir -p $TMP_DIR/wala
+        # cd $TMP_DIR/wala
         # wget https://github.com/Azure/WALinuxAgent/archive/v2.2.36.tar.gz
         # tar -xvf v2.2.36.tar.gz
         # cd WALinuxAgent-2.2.36
@@ -138,11 +139,11 @@ install_pkgs()
         sed -i -e 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
         sed -i -e 's/AutoUpdate.Enabled=y/# AutoUpdate.Enabled=y/g' /etc/waagent.conf
         # systemctl restart waagent
-        # cd && rm -rf /tmp/wala
+        # cd && rm -rf $TMP_DIR/wala
 
         # Install gcc 8.2
-        mkdir -p /tmp/setup-gcc
-        cd /tmp/setup-gcc
+        mkdir -p $TMP_DIR/setup-gcc
+        cd $TMP_DIR/setup-gcc
 
         wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2
         tar -xvf gmp-6.1.0.tar.bz2
@@ -168,7 +169,7 @@ install_pkgs()
         cd gcc-8.2.0
         ./configure --disable-multilib && make -j 40 && make install
 
-        cd && rm -rf /tmp/setup-gcc
+        cd && rm -rf $TMP_DIR/setup-gcc
 
         cp ./modulefiles/gcc-8.2.0 /usr/share/Modules/modulefiles/
         source ~/.bashrc
@@ -176,8 +177,8 @@ install_pkgs()
 
         INSTALL_PREFIX=/opt
 
-        mkdir -p /tmp/mpi
-        cd /tmp/mpi
+        mkdir -p $TMP_DIR/mpi
+        cd $TMP_DIR/mpi
 
         # MVAPICH2 2.3
         wget http://mvapich.cse.ohio-state.edu/download/mvapich/mv2/mvapich2-2.3.tar.gz
@@ -200,7 +201,7 @@ install_pkgs()
         HPCX_PATH=${INSTALL_PREFIX}/hpcx-v2.3.0-gcc-MLNX_OFED_LINUX-4.5-1.0.1.0-redhat7.6-x86_64
         HCOLL_PATH=${HPCX_PATH}/hcoll
         rm -rf hpcx-v2.3.0-gcc-MLNX_OFED_LINUX-4.5-1.0.1.0-redhat7.6-x86_64.tbz
-        cd /tmp/mpi
+        cd $TMP_DIR/mpi
 
         # OpenMPI 4.0.0
         wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.0.tar.gz
@@ -221,10 +222,10 @@ install_pkgs()
         wget https://raw.githubusercontent.com/jithinjosepkl/azhpc-images/master/config/IntelMPI-v2019.x-silent.cfg
         tar -xvf l_mpi_2019.2.187.tgz
         cd l_mpi_2019.2.187
-        ./install.sh --silent /tmp/mpi/IntelMPI-v2019.x-silent.cfg
+        ./install.sh --silent $TMP_DIR/mpi/IntelMPI-v2019.x-silent.cfg
         cd ..
 
-        cd && rm -rf /tmp/mpi
+        cd && rm -rf $TMP_DIR/mpi
 
         mkdir -p /usr/share/Modules/modulefiles/mpi/
         cp ./modulefiles/mpi/* /usr/share/Modules/modulefiles/mpi/
@@ -333,6 +334,7 @@ install_munge()
 
     useradd -M -c "Munge service account" -g munge -s /usr/sbin/nologin munge
 
+    cd $TMP_DIR
     wget https://github.com/pnnl/cloudoffice/blob/master/hpc-cluster/rpms/rpms.tar?raw=true -O rpms.tar
 
     tar xvf rpms.tar
@@ -374,7 +376,7 @@ install_slurm_config()
     if is_master; then
 
         mkdir -p $SLURM_CONF_DIR
-
+        cd /tmp
         if [ -e "$TEMPLATE_BASE_URL/slurm.template.conf" ]; then
             cp "$TEMPLATE_BASE_URL/slurm.template.conf" .
         else
@@ -417,14 +419,16 @@ install_slurm()
         systemctl start slurmctld
         systemctl status slurmctld
 
-        mkdir -p $SHARE_APPS/intel
-        wget https://dtn2.pnl.gov/data/intel.tar
-        tar xf intel.tar -C $SHARE_APPS/intel
+        #mkdir -p $SHARE_APPS/intel
+        #cd $TMP_DIR
+        #wget https://dtn2.pnl.gov/data/intel.tar
+        #tar xf intel.tar -C $SHARE_APPS/intel
 
         rpm --import https://packages.microsoft.com/keys/microsoft.asc
         sh -c 'echo -e "[azure-cli]\nname=Azure CLI\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
         yum -y install azure-cli
 
+        cd /tmp
         mkdir -p $SHARE_APPS/scripts/
         #wget hpctest.pem
         #mv hpctest.pem $SHARE_APPS/scripts/
@@ -451,8 +455,8 @@ install_slurm()
         echo "$MASTER_IP master" >> /etc/hosts
 
     fi
-    mkdir -p /share/apps/intel
-    ln -s $SHARE_APPS/intel/2018 /share/apps/intel
+    #mkdir -p /share/apps/intel
+    #ln -s $SHARE_APPS/intel/2018 /share/apps/intel
     #cd ..
 }
 
@@ -472,6 +476,7 @@ install_pbsoss()
     # Required on 7.2 as the libical lib changed
     ln -s /usr/lib64/libical.so.1 /usr/lib64/libical.so.0
 
+    cd $TMP_DIR
     wget http://wpc.23a7.iotacdn.net/8023A7/origin2/rl/PBS-Open/CentOS_7.zip
     unzip CentOS_7.zip
     cd CentOS_7
@@ -648,6 +653,7 @@ install_easybuild()
 install_cfs()
 {
     if [ "$CFS" == "BeeGFS" ]; then
+        cd $TMP_DIR
         wget -O beegfs-rhel7.repo http://www.beegfs.com/release/latest-stable/dists/beegfs-rhel7.repo
         mv beegfs-rhel7.repo /etc/yum.repos.d/beegfs.repo
         rpm --import http://www.beegfs.com/release/latest-stable/gpg/RPM-GPG-KEY-beegfs
